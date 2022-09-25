@@ -15,7 +15,7 @@ export class ImprovedRandomNoteSettingTab extends PluginSettingTab {
 
         containerEl.empty();
 
-        containerEl.createEl('h2', { text: 'Improved Random Note Settings ' });
+        containerEl.createEl('h2', { text: 'Improved Random Note Settings TestVersion' });
 
         new Setting(containerEl)
             .setName('Open in New Leaf')
@@ -34,8 +34,8 @@ export class ImprovedRandomNoteSettingTab extends PluginSettingTab {
             });
 
         new Setting(containerEl)
-            .setName("Select folder to exclude")
-            .setDesc("")
+            .setName("Select folders to exclude")
+            .setDesc("Folders splits by comma ','")
             .addText(cb => {
                 new FolderSuggest(this.app, cb.inputEl);
                 cb
@@ -46,5 +46,17 @@ export class ImprovedRandomNoteSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     });
             });
+
+      new Setting(containerEl)
+        .setName('Filter by tag')
+        .setDesc('Enter one tag to filter')
+        .addText((text) => {
+          text.setPlaceholder('#tag')
+            .setValue(this.plugin.settings.selectedTag)
+            .onChange(async (value) => {
+              this.plugin.settings.selectedTag = value;
+              await this.plugin.saveSettings();
+            });
+        });
     }
 }

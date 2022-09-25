@@ -1,5 +1,4 @@
 import { App, CachedMetadata } from 'obsidian';
-import { TextInputSuggest } from './suggest';
 import { TagFilesMap } from './types';
 
 export function getTagFilesMap(app: App): TagFilesMap {
