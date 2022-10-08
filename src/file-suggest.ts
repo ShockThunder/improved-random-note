@@ -55,7 +55,11 @@ export class FolderSuggest extends TextInputSuggest<TFolder> {
     }
 
     selectSuggestion(file: TFolder): void {
-        this.inputEl.value += file.path + ',';
+        const previousInput = this.inputEl.value;
+        const formattedInput = previousInput.split(',').slice(0, -1);
+        formattedInput.push(file.path);
+        const result = formattedInput.map(x => x.trim()).join(', ');
+        this.inputEl.value = result + ',';
         this.inputEl.trigger("input");
         this.close();
     }

@@ -31,15 +31,6 @@ export default class ImprovedRandomNotePlugin extends Plugin {
     };
 
     openRandomNote = async (files: TFile[]): Promise<void> => {
-        const until = new Date('2022-10-02T03:24:00');
-        const today = new Date(Date.now());
-
-        if (today > until)
-        {
-            new ImprovedRandomNoteNotice("Sorry, this is beta version", 5000);
-            return;
-        }
-
         const markdownFiles = files.filter((file) => file.extension === 'md');
 
         const filteredFolders= this.filterExcludedFolders(markdownFiles)
@@ -77,9 +68,12 @@ export default class ImprovedRandomNotePlugin extends Plugin {
         if (loadedSettings) {
             this.setOpenInNewLeaf(loadedSettings.openInNewLeaf);
             this.setEnableRibbonIcon(loadedSettings.enableRibbonIcon);
+            this.settings.excludedFolders = loadedSettings.excludedFolders;
+            this.settings.selectedTag = loadedSettings.selectedTag;
         } else {
             this.refreshRibbonIcon();
         }
+        this.saveSettings()
     };
 
     setOpenInNewLeaf = (value: boolean): void => {
@@ -102,7 +96,7 @@ export default class ImprovedRandomNotePlugin extends Plugin {
         if (this.settings.enableRibbonIcon) {
             this.ribbonIconEl = this.addRibbonIcon(
                 'dice',
-                'Open Random Note',
+                'Open Improved Random Note',
                 this.handleOpenRandomNote,
             );
         }
