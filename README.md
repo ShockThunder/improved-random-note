@@ -1,15 +1,14 @@
-![Downloads](https://img.shields.io/github/downloads/erichalldev/obsidian-smart-random-note/total.svg)
+# Improved Random Note Obsidian Plugin
 
-# Impoved Random Note Obsidian Plugin
+This plugin improves interaction with the knowledge base in so-called wandering mode by opening Random Notes
 
-This plugin dramatically improves interaction with the knowledge base in so-called wandering mode.  Allows you to retrieve a random note from the knowledge base according to the criteria you set.
+Unlike the core plugin and its analogs like Smart Random Note, the plugin combines the following options:
 
-The following options are available:
+- Opening a random note without having to create an intermediate search query
+- Ability to open a random note in a new panel
+- Adding the plugin icon to the command bar
+- Excluding notes from specific folders from the output. Useful for excluding Archives, Templates and other service folders.
+- Option to open notes only with a certain tag and in combination with exclusion of certain directories from output.
 
-- Open a random note in a new pane.
-- Add a plugin icon to the command bar
-- Exclude from output notes that are in specific folders (can be useful for excluding archived folders, or folders with daily notes, templates)
-- Open notes only with a certain tag.
-
-Developed specially for the project Second Brain (https://second-brain.ru/).
+The plugin is developed specifically for the Second Brain project (https://second-brain.ru/).
 

@@ -15,8 +15,6 @@ export class ImprovedRandomNoteSettingTab extends PluginSettingTab {
 
         containerEl.empty();
 
-        containerEl.createEl('h2', { text: 'Improved Random Note Settings' });
-
         new Setting(containerEl)
             .setName('Open in New Leaf')
             .setDesc('Default setting for opening random notes')
