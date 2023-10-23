@@ -15,7 +15,7 @@ export default class ImprovedRandomNotePlugin extends Plugin {
 
         this.addCommand({
             id: 'open-random-note',
-            name: 'Open Improved Random Note',
+            name: 'Open improved random note',
             callback: this.handleOpenRandomNote,
         });
 
@@ -96,7 +96,7 @@ export default class ImprovedRandomNotePlugin extends Plugin {
         if (this.settings.enableRibbonIcon) {
             this.ribbonIconEl = this.addRibbonIcon(
                 'dice',
-                'Open Improved Random Note',
+                'Open improved random note',
                 this.handleOpenRandomNote,
             );
         }
