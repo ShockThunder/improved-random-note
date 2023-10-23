@@ -24,14 +24,6 @@ export class ImprovedRandomNoteSettingTab extends PluginSettingTab {
             });
 
         new Setting(containerEl)
-            .setName('Enable Ribbon Icon')
-            .setDesc('Place an icon on the ribbon to open a random note from search')
-            .addToggle((toggle) => {
-                toggle.setValue(this.plugin.settings.enableRibbonIcon);
-                toggle.onChange(this.plugin.setEnableRibbonIcon);
-            });
-
-        new Setting(containerEl)
             .setName("Select folders to exclude")
             .setDesc("Folders splits by comma ','")
             .addText(cb => {

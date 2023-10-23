@@ -3,7 +3,7 @@
 	"name": "Improved Random Note",
 	"version": "1.0.0",
 	"minAppVersion": "0.9.12",
-	"description": "This plugin dramatically improves interaction with the knowledge base in so-called wandering mode.",
+	"description": "Improved interaction with the knowledge base in so-called wandering mode by opening Random Notes.",
 	"author": "ShockThunder",
 	"authorUrl": "https://github.com/ShockThunder",
 	"isDesktopOnly": false
