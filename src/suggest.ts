@@ -1,4 +1,6 @@
-﻿import { createPopper, Instance as PopperInstance } from "@popperjs/core";
+﻿//https://github.com/liamcain/obsidian-periodic-notes/blob/main/src/ui/suggest.ts
+
+import { createPopper, Instance as PopperInstance } from "@popperjs/core";
 import { App, ISuggestOwner, Scope } from 'obsidian';
 
 class Suggest<T> {
