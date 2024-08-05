@@ -53,12 +53,19 @@ export default class ImprovedRandomNotePlugin extends Plugin {
     }
 
     filterTag(files: TFile[]) {
-        const tag = this.settings.selectedTag;
+        let tag = this.settings.selectedTag;
         if(tag == '')
             return files;
 
+        if (!tag.startsWith('#')){
+            tag = '#' + tag;
+        }
+        
         const tagFilesMap = getTagFilesMap(this.app);
-        const taggedFiles = tagFilesMap[tag];
+        let taggedFiles = tagFilesMap[tag];
+        if (!taggedFiles){
+            taggedFiles = [];
+        }
         const result = files.filter(x => taggedFiles.some(f => f.path == x.path));
         return result;
     }
