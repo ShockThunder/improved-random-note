@@ -38,6 +38,21 @@ export class ImprovedRandomNoteSettingTab extends PluginSettingTab {
                     });
             });
 
+        new Setting(containerEl)
+            .setName("Select folders to include")
+            .setDesc("Folders splits by comma ','")
+            .addText(cb => {
+                new FolderSuggest(this.app, cb.inputEl);
+                if(!this.plugin.settings.includedFolders)
+                    cb.setPlaceholder('Directory1, Directory2');
+                cb
+                    .setValue(this.plugin.settings.includedFolders)
+                    .onChange(async (value) => {
+                        this.plugin.settings.includedFolders = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
       new Setting(containerEl)
         .setName('Filter by tag')
         .setDesc('Enter one tag to filter')
