@@ -10,4 +10,5 @@ export interface ImprovedRandomNoteSettings {
     excludedFolders: string;
     includedFolders: string;
     selectedTag: string;
+    excludedTags: string[];
 }
