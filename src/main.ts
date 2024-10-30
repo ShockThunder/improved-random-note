@@ -5,7 +5,7 @@ import {  ImprovedRandomNoteSettings } from './types';
 import { ImprovedRandomNoteNotice } from './imporvedRandomNoteNotice';
 
 export default class ImprovedRandomNotePlugin extends Plugin {
-    settings: ImprovedRandomNoteSettings = { openInNewLeaf: true, enableRibbonIcon: true, selectedTag: '', excludedFolders: '', includedFolders: '' };
+    settings: ImprovedRandomNoteSettings = { openInNewLeaf: true, enableRibbonIcon: true, selectedTag: '', excludedFolders: '', includedFolders: '', excludedTags: [] };
     ribbonIconEl: HTMLElement | undefined = undefined;
 
     async onload(): Promise<void> {
@@ -38,22 +38,48 @@ export default class ImprovedRandomNotePlugin extends Plugin {
         await this.openRandomNote(markdownFiles);
     };
 
-    openRandomNote = async (files: TFile[]): Promise<void> => {
-        const markdownFiles = files.filter((file) => file.extension === 'md');
+	openRandomNote = async (files: TFile[]): Promise<void> => {
+	    const markdownFiles = files.filter((file) => file.extension === 'md');
+	
+	    const filteredFolders = this.filterExcludedFolders(markdownFiles);
+	    const filteredByExcludedTags = this.excludeTags(filteredFolders);
+	    const filteredBySelectedTag = this.filterTag(filteredByExcludedTags);
+	
+	    if (!filteredBySelectedTag.length) {
+	        new ImprovedRandomNoteNotice("Can't open note. No markdown files available to open.", 5000);
+	        return;
+	    }
+	
+	    const fileToOpen = randomElement(filteredBySelectedTag);
+	    await this.app.workspace.openLinkText(fileToOpen.basename, '', this.settings.openInNewLeaf, {
+	        active: true,
+	    });
+	};
+	
+	excludeTags(files: TFile[]) {
+	    if (!this.settings.excludedTags?.length) {
+	        return files;
+	    }
+	
+	    const tagFilesMap = getTagFilesMap(this.app);
+	    let filesToExclude = new Set<string>();
+	
+	    // Collect all files that have any of the excluded tags
+	    for (let tag of this.settings.excludedTags) {
+	        if (!tag.startsWith('#')) {
+	            tag = '#' + tag;
+	        }
+	        
+	        const taggedFiles = tagFilesMap[tag];
+	        if (taggedFiles) {
+	            taggedFiles.forEach(file => filesToExclude.add(file.path));
+	        }
+	    }
+	
+	    // Return files that don't have any excluded tags
+	    return files.filter(file => !filesToExclude.has(file.path));
+	}
 
-        const filteredFolders= this.filterExcludedFolders(markdownFiles)
-        const filteredTags= this.filterTag(filteredFolders)
-
-        if (!filteredTags.length) {
-            new ImprovedRandomNoteNotice("Can't open note. No markdown files available to open.", 5000);
-            return;
-        }
-
-        const fileToOpen = randomElement(filteredTags);
-        await this.app.workspace.openLinkText(fileToOpen.basename, '', this.settings.openInNewLeaf, {
-            active: true,
-        });
-    };
 
     filterExcludedFolders(files: TFile[]) {
         const excludedFolders = this.settings.excludedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
@@ -85,6 +111,7 @@ export default class ImprovedRandomNotePlugin extends Plugin {
             this.setEnableRibbonIcon(loadedSettings.enableRibbonIcon);
             this.settings.excludedFolders = loadedSettings.excludedFolders;
             this.settings.selectedTag = loadedSettings.selectedTag;
+            this.settings.excludedTags = loadedSettings.excludedTags;
         } else {
             this.refreshRibbonIcon();
         }
