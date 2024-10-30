@@ -38,22 +38,40 @@ export default class ImprovedRandomNotePlugin extends Plugin {
         await this.openRandomNote(markdownFiles);
     };
 
-    openRandomNote = async (files: TFile[]): Promise<void> => {
-        const markdownFiles = files.filter((file) => file.extension === 'md');
+openRandomNote = async (files: TFile[]): Promise<void> => {
+	const markdownFiles = files.filter((file) => file.extension === 'md');
 
-        const filteredFolders= this.filterExcludedFolders(markdownFiles)
-        const filteredTags= this.filterTag(filteredFolders)
+	const filteredFolders= this.filterExcludedFolders(markdownFiles)
+	const filteredTags= this.excludeTag(filteredFolders)
 
-        if (!filteredTags.length) {
-            new ImprovedRandomNoteNotice("Can't open note. No markdown files available to open.", 5000);
-            return;
-        }
+	if (!filteredTags.length) {
+		new ImprovedRandomNoteNotice("Can't open note. No markdown files available to open.", 5000);
+		return;
+	}
 
-        const fileToOpen = randomElement(filteredTags);
-        await this.app.workspace.openLinkText(fileToOpen.basename, '', this.settings.openInNewLeaf, {
-            active: true,
-        });
-    };
+	const fileToOpen = randomElement(filteredTags);
+	await this.app.workspace.openLinkText(fileToOpen.basename, '', this.settings.openInNewLeaf, {
+		active: true,
+	});
+};
+
+excludeTag(files: TFile[]) {
+	let tag = this.settings.selectedTag;
+	if(tag == '')
+		return files;
+
+	if (!tag.startsWith('#')){
+		tag = '#' + tag;
+	}
+	
+	const tagFilesMap = getTagFilesMap(this.app);
+	let taggedFiles = tagFilesMap[tag];
+	if (!taggedFiles){
+		taggedFiles = [];
+	}
+	const result = files.filter(x => !taggedFiles.some(f => f.path == x.path));
+	return result;
+}
 
     filterExcludedFolders(files: TFile[]) {
         const excludedFolders = this.settings.excludedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
