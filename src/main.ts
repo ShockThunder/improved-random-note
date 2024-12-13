@@ -27,7 +27,7 @@ export default class ImprovedRandomNotePlugin extends Plugin {
     handleOpenRandomNote = async (): Promise<void> => {
         const excludedFolders = this.settings.excludedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
         const includedFolders = this.settings.includedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
-        
+		
         let markdownFiles;
         if (includedFolders.length > 0){
             markdownFiles = this.app.vault.getMarkdownFiles().filter(x => includedFolders.some(folder => x.path.contains(folder)));
@@ -110,6 +110,7 @@ export default class ImprovedRandomNotePlugin extends Plugin {
             this.setOpenInNewLeaf(loadedSettings.openInNewLeaf);
             this.setEnableRibbonIcon(loadedSettings.enableRibbonIcon);
             this.settings.excludedFolders = loadedSettings.excludedFolders;
+            this.settings.includedFolders = loadedSettings.includedFolders;
             this.settings.selectedTag = loadedSettings.selectedTag;
             this.settings.excludedTags = loadedSettings.excludedTags;
         } else {
