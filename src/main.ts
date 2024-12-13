@@ -25,24 +25,15 @@ export default class ImprovedRandomNotePlugin extends Plugin {
     };
 
     handleOpenRandomNote = async (): Promise<void> => {
-        const excludedFolders = this.settings.excludedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
-        const includedFolders = this.settings.includedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
-        
-        let markdownFiles;
-        if (includedFolders.length > 0){
-            markdownFiles = this.app.vault.getMarkdownFiles().filter(x => includedFolders.some(folder => x.path.contains(folder)));
-        } 
-        else {
-            markdownFiles = this.app.vault.getMarkdownFiles().filter(x => excludedFolders.every(folder => !x.path.contains(folder)));
-        }
-        await this.openRandomNote(markdownFiles);
+        await this.openRandomNote(this.app.vault.getMarkdownFiles());
     };
 
 	openRandomNote = async (files: TFile[]): Promise<void> => {
 	    const markdownFiles = files.filter((file) => file.extension === 'md');
 	
-	    const filteredFolders = this.filterExcludedFolders(markdownFiles);
-	    const filteredByExcludedTags = this.excludeTags(filteredFolders);
+		const filteredByExcludedFolders = this.filterExcludedFolders(markdownFiles);
+		const filteredByIncludedFolders = this.filterIncludedFolders(filteredByExcludedFolders);
+	    const filteredByExcludedTags = this.excludeTags(filteredByIncludedFolders);
 	    const filteredBySelectedTag = this.filterTag(filteredByExcludedTags);
 	
 	    if (!filteredBySelectedTag.length) {
@@ -82,9 +73,20 @@ export default class ImprovedRandomNotePlugin extends Plugin {
 
 
     filterExcludedFolders(files: TFile[]) {
-        const excludedFolders = this.settings.excludedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
-        return files.filter(x => excludedFolders.every(folder => !x.path.contains(folder)));
-    }
+		const excludedFolders = this.settings.excludedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
+		if (excludedFolders.length > 0) {
+			return files.filter(x => excludedFolders.every(folder => !x.path.contains(folder)));
+		}
+		return files;
+	}
+	
+	filterIncludedFolders(files: TFile[]) {
+		const includedFolders = this.settings.includedFolders.split(',').map(x => x.trim()).filter(x => x !== '');
+		if (includedFolders.length > 0) {
+			return files.filter(x => includedFolders.some(folder => x.path.contains(folder)));
+		}
+		return files;
+	}
 
     filterTag(files: TFile[]) {
         let tag = this.settings.selectedTag;
@@ -110,6 +112,7 @@ export default class ImprovedRandomNotePlugin extends Plugin {
             this.setOpenInNewLeaf(loadedSettings.openInNewLeaf);
             this.setEnableRibbonIcon(loadedSettings.enableRibbonIcon);
             this.settings.excludedFolders = loadedSettings.excludedFolders;
+            this.settings.includedFolders = loadedSettings.includedFolders;
             this.settings.selectedTag = loadedSettings.selectedTag;
             this.settings.excludedTags = loadedSettings.excludedTags;
         } else {
