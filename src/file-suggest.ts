@@ -2,6 +2,8 @@
 import { TAbstractFile, TFile, TFolder } from "obsidian";
 import { TextInputSuggest } from "./suggest";
 
+const SUPPORTED_EXTENSIONS = ['md', 'canvas', 'drawio', 'svg'];
+
 export class FileSuggest extends TextInputSuggest<TFile> {
     getSuggestions(inputStr: string): TFile[] {
         const abstractFiles = this.app.vault.getAllLoadedFiles();
