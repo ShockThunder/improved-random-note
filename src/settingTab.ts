@@ -30,7 +30,7 @@ export class ImprovedRandomNoteSettingTab extends PluginSettingTab {
                 new FolderSuggest(this.app, cb.inputEl);
                 if(!this.plugin.settings.excludedFolders)
                     cb.setPlaceholder('Directory1, Directory2');
-                cb                        
+                cb
                     .setValue(this.plugin.settings.excludedFolders)
                     .onChange(async (value) => {
                         this.plugin.settings.excludedFolders = value;
@@ -53,36 +53,59 @@ export class ImprovedRandomNoteSettingTab extends PluginSettingTab {
                     });
             });
 
-        new Setting(containerEl)
-            .setName('Filter by tag')
-            .setDesc('Enter one tag to filter')
-            .addText((text) => {
-                if(!this.plugin.settings.selectedTag)
-                    text.setPlaceholder('#tag');
-                text
-                .setValue(this.plugin.settings.selectedTag)
-                .onChange(async (value) => {
-                    this.plugin.settings.selectedTag = value;
-                    await this.plugin.saveSettings();
-                });
+        // Tag Filters section
+        const tagFilterSetting = new Setting(containerEl)
+            .setName('Tag filters')
+            .setDesc('Add tags to include or exclude. Include = note must have ALL included tags. Exclude = note must not have any excluded tag.');
+
+        tagFilterSetting.addText((text) => {
+            text.setPlaceholder('#tag');
+            text.inputEl.addEventListener('keydown', (e: KeyboardEvent) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const val = text.getValue().trim();
+                    if (val) {
+                        let tag = val.startsWith('#') ? val : '#' + val;
+                        // Don't add duplicates
+                        if (!this.plugin.settings.tagFilters.some(f => f.tag === tag)) {
+                            this.plugin.settings.tagFilters.push({ tag: tag, mode: 'include' });
+                            this.plugin.saveSettings();
+                            text.setValue('');
+                            this.renderPills(pillContainer);
+                        }
+                    }
+                }
+            });
+        });
+
+        const pillContainer = containerEl.createDiv('tag-filter-pills');
+        this.renderPills(pillContainer);
+    }
+
+    renderPills(container: HTMLElement): void {
+        container.empty();
+        this.plugin.settings.tagFilters.forEach((filter, index) => {
+            const pill = container.createDiv('tag-filter-pill');
+            pill.addClass(filter.mode === 'include' ? 'tag-pill-include' : 'tag-pill-exclude');
+
+            const modeBtn = pill.createSpan('tag-pill-mode');
+            modeBtn.setText(filter.mode);
+            modeBtn.addEventListener('click', () => {
+                filter.mode = filter.mode === 'include' ? 'exclude' : 'include';
+                this.plugin.saveSettings();
+                this.renderPills(container);
             });
 
-        new Setting(containerEl)
-            .setName('Exclude tags')
-            .setDesc('Enter tags to exclude, separated by comma')
-            .addText((text) => {
-                if(!this.plugin.settings.excludedTags?.length)
-                    text.setPlaceholder('#tag1, #tag2');
-                text
-                .setValue(this.plugin.settings.excludedTags?.join(', ') || '')
-                .onChange(async (value) => {
-                    // Split the input string by comma and trim each tag
-                    this.plugin.settings.excludedTags = value
-                        .split(',')
-                        .map(tag => tag.trim())
-                        .filter(tag => tag.length > 0); // Remove empty tags
-                    await this.plugin.saveSettings();
-                });
+            const label = pill.createSpan('tag-pill-label');
+            label.setText(filter.tag);
+
+            const removeBtn = pill.createSpan('tag-pill-remove');
+            removeBtn.setText('\u00d7');
+            removeBtn.addEventListener('click', () => {
+                this.plugin.settings.tagFilters.splice(index, 1);
+                this.plugin.saveSettings();
+                this.renderPills(container);
             });
+        });
     }
 }
