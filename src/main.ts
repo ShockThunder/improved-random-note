@@ -5,7 +5,7 @@ import {  ImprovedRandomNoteSettings } from './types';
 import { ImprovedRandomNoteNotice } from './imporvedRandomNoteNotice';
 
 export default class ImprovedRandomNotePlugin extends Plugin {
-    settings: ImprovedRandomNoteSettings = { openInNewLeaf: true, enableRibbonIcon: true, selectedTag: '', excludedFolders: '', includedFolders: '', excludedTags: [] };
+    settings: ImprovedRandomNoteSettings = { openInNewLeaf: true, enableRibbonIcon: true, selectedTag: '', excludedFolders: '', includedFolders: '', excludedTags: [], supportedFileExtensions: ['md'] };
     ribbonIconEl: HTMLElement | undefined = undefined;
 
     async onload(): Promise<void> {
@@ -25,24 +25,26 @@ export default class ImprovedRandomNotePlugin extends Plugin {
     };
 
     handleOpenRandomNote = async (): Promise<void> => {
-        await this.openRandomNote(this.app.vault.getMarkdownFiles());
+        await this.openRandomNote(this.app.vault.getFiles());
     };
 
 	openRandomNote = async (files: TFile[]): Promise<void> => {
-	    const markdownFiles = files.filter((file) => file.extension === 'md');
-	
-		const filteredByExcludedFolders = this.filterExcludedFolders(markdownFiles);
+	    const filteredFiles = files.filter((file) => 
+            this.settings.supportedFileExtensions.includes(file.extension)
+        );
+
+		const filteredByExcludedFolders = this.filterExcludedFolders(filteredFiles);
 		const filteredByIncludedFolders = this.filterIncludedFolders(filteredByExcludedFolders);
 	    const filteredByExcludedTags = this.excludeTags(filteredByIncludedFolders);
 	    const filteredBySelectedTag = this.filterTag(filteredByExcludedTags);
-	
+
 	    if (!filteredBySelectedTag.length) {
-	        new ImprovedRandomNoteNotice("Can't open note. No markdown files available to open.", 5000);
+	        new ImprovedRandomNoteNotice("Can't open note. No files available to open.", 5000);
 	        return;
 	    }
-	
+
 	    const fileToOpen = randomElement(filteredBySelectedTag);
-	    await this.app.workspace.openLinkText(fileToOpen.basename, '', this.settings.openInNewLeaf, {
+	    await this.app.workspace.openLinkText(fileToOpen.path, '', this.settings.openInNewLeaf, {
 	        active: true,
 	    });
 	};
